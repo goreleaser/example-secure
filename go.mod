@@ -1,4 +1,4 @@
-module github.com/goreleaser/supply-chain-example
+module github.com/goreleaser/example-secure
 
 go 1.25
 
