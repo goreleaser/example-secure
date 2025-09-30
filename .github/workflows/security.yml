@@ -16,7 +16,6 @@ concurrency:
 
 jobs:
   codeql:
-    name: analyze
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -38,7 +37,6 @@ jobs:
       - uses: github/codeql-action/analyze@3599b3baa15b485a2e49ef411a7a4bb2452e7f93 # v3.30.5
 
   grype:
-    name: scan-source
     runs-on: ubuntu-latest
     permissions:
       security-events: write
@@ -73,6 +71,8 @@ jobs:
   dependency-review:
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request'
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
       - uses: actions/dependency-review-action@595b5aeba73380359d98a5e087f648dbb0edce1b # v4.7.3
