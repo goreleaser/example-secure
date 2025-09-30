@@ -1,0 +1,79 @@
+# secure-example
+
+This is an example repository showing how to securely release using GoReleaser
+and GitHub Actions.
+
+## Workflows
+
+- `build`: runs tests
+- `release`: runs goreleaser
+- `security`: security scans: grype, govulncheck, codeql, license-check
+
+## How it works
+
+GoReleaser manages the entire thing, basically.
+
+It will:
+
+- build using the Go Mod Proxy as source of truth
+- create archives
+- call `syft` to create the SBOMs
+- create the checksum file
+- sign it with `cosign`
+- create the github release
+- push artifacts there
+- create a docker image (with SBOM) using the binary it just built (thus, the binary inside the docker image is the same as the one released)
+- sign the docker image with `cosign` as well
+
+## Verifying
+
+### Checksums
+
+```shell
+wget https://github.com/goreleaser/supply-chain-example/releases/download/v1.3.4/checksums.txt
+cosign verify-blob \
+    --certificate-identity 'https://github.com/goreleaser/example-supply-chain/.github/workflows/release.yml@refs/tags/v1.3.4' \
+    --certificate-oidc-issuer 'https://token.actions.githubusercontent.com' \
+    --cert https://github.com/goreleaser/example-supply-chain/releases/download/v1.3.4/checksums.txt.pem \
+    --signature https://github.com/goreleaser/example-supply-chain/releases/download/v1.3.4/checksums.txt.sig \
+    ./checksums.txt
+```
+
+You can then download any file you want from the release, and verify it with, for example:
+
+```shell
+wget https://github.com/goreleaser/example-supply-chain/releases/download/v1.3.4/supply-chain-example_1.3.4_linux_amd64.tar.gz.sbom.json
+wget https://github.com/goreleaser/example-supply-chain/releases/download/v1.3.4/supply-chain-example_1.3.4_linux_amd64.tar.gz
+sha256sum --ignore-missing -c checksums.txt
+```
+
+And both should say "OK".
+
+You can then inspect the `.sbom` file to see the entire dependency tree of the binary.
+
+### Attestations
+
+This example also publishes build attestations.
+You can verify any artifact with:
+
+```shell
+gh attestation verify --owner goreleaser *.tar.gz
+```
+
+### Docker image
+
+```shell
+cosign verify \
+  --certificate-identity 'https://github.com/goreleaser/example-supply-chain/.github/workflows/release.yml@refs/tags/v1.3.4' \
+  --certificate-oidc-issuer 'https://token.actions.githubusercontent.com' \
+  ghcr.io/goreleaser/example-supply-chain:v1.3.4
+```
+
+### Attestations
+
+This example also publishes build attestations.
+You can verify any artifact with:
+
+```shell
+gh attestation verify --owner goreleaser *.tar.gz
+```
