@@ -27,22 +27,26 @@ It will:
 
 ## Verifying
 
+```bash
+export VERSION="$(gh release list -L 1 -R goreleaser/example-secure --json=tagName -q '.[] | .tagName')"
+```
+
 ### Checksums
 
 ```shell
-wget https://github.com/goreleaser/example-secure/releases/download/v0.0.4/checksums.txt
+wget https://github.com/goreleaser/example-secure/releases/download/$VERSION/checksums.txt
 cosign verify-blob \
-    --certificate-identity 'https://github.com/goreleaser/example-secure/.github/workflows/release.yml@refs/tags/v0.0.4' \
+    --certificate-identity 'https://github.com/goreleaser/example-secure/.github/workflows/release.yml@refs/tags/$VERSION' \
     --certificate-oidc-issuer 'https://token.actions.githubusercontent.com' \
-    --cert https://github.com/goreleaser/example-secure/releases/download/v0.0.4/checksums.txt.pem \
-    --signature https://github.com/goreleaser/example-secure/releases/download/v0.0.4/checksums.txt.sig \
+    --cert https://github.com/goreleaser/example-secure/releases/download/$VERSION/checksums.txt.pem \
+    --signature https://github.com/goreleaser/example-secure/releases/download/$VERSION/checksums.txt.sig \
     ./checksums.txt
 ```
 
 You can then download any file you want from the release, and verify it with, for example:
 
 ```shell
-wget https://github.com/goreleaser/example-secure/releases/download/v0.0.4/example_0.0.4_linux_amd64.tar.gz
+wget https://github.com/goreleaser/example-secure/releases/download/$VERSION/example_linux_amd64.tar.gz
 sha256sum --ignore-missing -c checksums.txt
 ```
 
@@ -50,12 +54,16 @@ And both should say "OK".
 
 ### SBOMs
 
-You can then inspect the `.sbom` file to see the entire dependency tree of the binary, check for vulnerable dependencies and whatnot:
+You can then inspect the `.sbom` file to see the entire dependency tree of the
+binary, check for vulnerable dependencies and whatnot.
+
+To get the SBOM of an artifact, you can use the same download URL, adding
+`.sbom.json` to the end of the URL:
 
 ```shell
-wget https://github.com/goreleaser/example-secure/releases/download/v0.0.4/example_0.0.4_linux_amd64.tar.gz.sbom.json
+wget https://github.com/goreleaser/example-secure/releases/download/$VERSION/example_linux_amd64.tar.gz.sbom.json
 sha256sum --ignore-missing -c checksums.txt
-grype sbom:example_0.0.4_linux_amd64.tar.gz.sbom.json
+grype sbom:example_linux_amd64.tar.gz.sbom.json
 ```
 
 ### Attestations
@@ -64,20 +72,24 @@ This example also publishes build attestations.
 You can verify any artifact with:
 
 ```shell
-gh attestation verify --owner goreleaser *.tar.gz
+gh attestation verify \
+  --owner goreleaser \
+  *.tar.gz
 ```
 
 ### Docker image
 
 ```shell
 cosign verify \
-  --certificate-identity 'https://github.com/goreleaser/example-secure/.github/workflows/release.yml@refs/tags/v0.0.4' \
+  --certificate-identity 'https://github.com/goreleaser/example-secure/.github/workflows/release.yml@refs/tags/$VERSION' \
   --certificate-oidc-issuer 'https://token.actions.githubusercontent.com' \
-  ghcr.io/goreleaser/example-secure:v0.0.4
+  ghcr.io/goreleaser/example-secure:$VERSION
 ```
 
 The images are also attested:
 
 ```shell
-gh attestation verify --owner goreleaser oci://ghcr.io/goreleaser/example-secure:v0.0.4
+gh attestation verify \
+  --owner goreleaser \
+  oci://ghcr.io/goreleaser/example-secure:$VERSION
 ```

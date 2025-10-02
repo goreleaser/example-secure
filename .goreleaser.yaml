@@ -21,7 +21,6 @@ builds:
     # ensures mod timestamp to be the commit timestamp
     mod_timestamp: "{{ .CommitTimestamp }}"
     flags:
-      # trims path
       - -trimpath
     ldflags:
       # use commit date instead of current date as main.date
@@ -42,6 +41,14 @@ checksum:
 # https://goreleaser.com/customization/source/
 source:
   enabled: true
+  name_template: "{{ .ProjectName }}.src"
+
+archives:
+  - format: tar.gz
+    wrap_in_directory: true
+    name_template: "{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}"
+    builds_info:
+      mtime: "{{ .CommitTimestamp }}"
 
 # creates SBOMs of all archives and the source tarball using syft
 # https://goreleaser.com/customization/sbom
@@ -61,7 +68,7 @@ signs:
       - "--output-certificate=${certificate}"
       - "--output-signature=${signature}"
       - "${artifact}"
-      - "--yes" # needed on cosign 2.0.0+
+      - "--yes"
     artifacts: checksum
     output: true
 
