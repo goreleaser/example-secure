@@ -1,7 +1,5 @@
 # svu configuration.
 #
 # https://github.com/caarlos0/svu
-verbose: true
 tag.prefix: "v"
 tag.mode: all
-always: true
