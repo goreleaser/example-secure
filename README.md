@@ -26,16 +26,17 @@ There's much more you can change, these are the things I usually do.
 
 ### GoReleaser Configuration
 
-The [provided configuration](./.goreleaser.yaml) is commented out and each section
-links to the relevant documentation, but here's a rundown:
+The [provided configuration](./.goreleaser.yaml) is commented out and each
+section links to the relevant documentation, but here's a rundown:
 
-- we build for a couple of platforms using the Go mod proxy
-- we create archives for both the binaries as well as for the source
-- we create and sign a checksums file (using [Cosign][cosign])
-- we create SBOMs of all archives (using [Syft][syft])
-- all these files are uploaded to the GitHub release
-- we create a Docker image manifest, which also includes SBOMs
-- we then sign the image
+1. We build for a couple of platforms using the Go mod proxy;
+1. We create archives for both the binaries as well as for the source;
+1. We create and sign a checksums file (using [Cosign][cosign]);
+1. We create [Software Bill of Materials (SBOMs)](https://www.cisa.gov/sbom)
+   for all the archives (using [Syft][syft]);
+1. all these files are uploaded to the GitHub release;
+1. We create a Docker image manifest, which also includes SBOMs;
+1. We then sign the image.
 
 ### GitHub Actions
 
@@ -51,8 +52,8 @@ out the code, installs Go, and runs `go test`.
 The [security workflow](./.github/workflows/security.yml) does a lot more, as it
 has a couple of jobs:
 
-1. `codeql`: as the name implies, runs the recommended [CodeQL][codeql] queries for Go and
-   Actions;
+1. `codeql`: as the name implies, runs the recommended [CodeQL][codeql] queries
+   for Go and Actions;
 1. `grype`: runs [Grype][], which scans for known vulnerabilities;
 1. `govulncheck`: runs the standard [Go vulnerability checker][govulncheck];
 1. `dependency-review`: runs only on pull requests, and checks if any
