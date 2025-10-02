@@ -69,7 +69,7 @@ signs:
 # https://goreleaser.com/customization/docker
 dockers_v2:
   - images:
-      - "ghcr.io/goreleaser/example-supply-chain"
+      - "ghcr.io/goreleaser/example-secure"
     tags:
       - latest
       - "{{ .Tag }}"
