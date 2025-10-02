@@ -30,26 +30,33 @@ It will:
 ### Checksums
 
 ```shell
-wget https://github.com/goreleaser/supply-chain-example/releases/download/v1.3.4/checksums.txt
+wget https://github.com/goreleaser/example-secure/releases/download/v0.0.4/checksums.txt
 cosign verify-blob \
-    --certificate-identity 'https://github.com/goreleaser/example-supply-chain/.github/workflows/release.yml@refs/tags/v1.3.4' \
+    --certificate-identity 'https://github.com/goreleaser/example-secure/.github/workflows/release.yml@refs/tags/v0.0.4' \
     --certificate-oidc-issuer 'https://token.actions.githubusercontent.com' \
-    --cert https://github.com/goreleaser/example-supply-chain/releases/download/v1.3.4/checksums.txt.pem \
-    --signature https://github.com/goreleaser/example-supply-chain/releases/download/v1.3.4/checksums.txt.sig \
+    --cert https://github.com/goreleaser/example-secure/releases/download/v0.0.4/checksums.txt.pem \
+    --signature https://github.com/goreleaser/example-secure/releases/download/v0.0.4/checksums.txt.sig \
     ./checksums.txt
 ```
 
 You can then download any file you want from the release, and verify it with, for example:
 
 ```shell
-wget https://github.com/goreleaser/example-supply-chain/releases/download/v1.3.4/supply-chain-example_1.3.4_linux_amd64.tar.gz.sbom.json
-wget https://github.com/goreleaser/example-supply-chain/releases/download/v1.3.4/supply-chain-example_1.3.4_linux_amd64.tar.gz
+wget https://github.com/goreleaser/example-secure/releases/download/v0.0.4/example_0.0.4_linux_amd64.tar.gz
 sha256sum --ignore-missing -c checksums.txt
 ```
 
 And both should say "OK".
 
-You can then inspect the `.sbom` file to see the entire dependency tree of the binary.
+### SBOMs
+
+You can then inspect the `.sbom` file to see the entire dependency tree of the binary, check for vulnerable dependencies and whatnot:
+
+```shell
+wget https://github.com/goreleaser/example-secure/releases/download/v0.0.4/example_0.0.4_linux_amd64.tar.gz.sbom.json
+sha256sum --ignore-missing -c checksums.txt
+grype sbom:example_0.0.4_linux_amd64.tar.gz.sbom.json
+```
 
 ### Attestations
 
@@ -64,16 +71,13 @@ gh attestation verify --owner goreleaser *.tar.gz
 
 ```shell
 cosign verify \
-  --certificate-identity 'https://github.com/goreleaser/example-supply-chain/.github/workflows/release.yml@refs/tags/v1.3.4' \
+  --certificate-identity 'https://github.com/goreleaser/example-secure/.github/workflows/release.yml@refs/tags/v0.0.4' \
   --certificate-oidc-issuer 'https://token.actions.githubusercontent.com' \
-  ghcr.io/goreleaser/example-supply-chain:v1.3.4
+  ghcr.io/goreleaser/example-secure:v0.0.4
 ```
 
-### Attestations
-
-This example also publishes build attestations.
-You can verify any artifact with:
+The images are also attested:
 
 ```shell
-gh attestation verify --owner goreleaser *.tar.gz
+gh attestation verify --owner goreleaser oci://ghcr.io/goreleaser/example-secure:v0.0.4
 ```
