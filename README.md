@@ -118,10 +118,10 @@ Then, we download the `checksums.txt` file, and verify its signature:
 ```bash
 wget https://github.com/goreleaser/example-secure/releases/download/$VERSION/checksums.txt
 cosign verify-blob \
-    --certificate-identity 'https://github.com/goreleaser/example-secure/.github/workflows/release.yml@refs/tags/$VERSION' \
+    --certificate-identity "https://github.com/goreleaser/example-secure/.github/workflows/release.yml@refs/tags/$VERSION" \
     --certificate-oidc-issuer 'https://token.actions.githubusercontent.com' \
-    --cert https://github.com/goreleaser/example-secure/releases/download/$VERSION/checksums.txt.pem \
-    --signature https://github.com/goreleaser/example-secure/releases/download/$VERSION/checksums.txt.sig \
+    --cert "https://github.com/goreleaser/example-secure/releases/download/$VERSION/checksums.txt.pem" \
+    --signature "https://github.com/goreleaser/example-secure/releases/download/$VERSION/checksums.txt.sig" \
     ./checksums.txt
 ```
 
@@ -131,7 +131,7 @@ from the release with this checksum file!
 You can then download any file you want from the release, and verify it with, for example:
 
 ```bash
-wget https://github.com/goreleaser/example-secure/releases/download/$VERSION/example_linux_amd64.tar.gz
+wget "https://github.com/goreleaser/example-secure/releases/download/$VERSION/example_linux_amd64.tar.gz"
 sha256sum --ignore-missing -c checksums.txt
 ```
 
@@ -144,7 +144,7 @@ To get the SBOM of an artifact, you can use the same download URL, adding
 `.sbom.json` to the end of the URL, and we can then check it out with `grype`:
 
 ```bash
-wget https://github.com/goreleaser/example-secure/releases/download/$VERSION/example_linux_amd64.tar.gz.sbom.json
+wget "https://github.com/goreleaser/example-secure/releases/download/$VERSION/example_linux_amd64.tar.gz.sbom.json"
 sha256sum --ignore-missing -c checksums.txt
 grype sbom:example_linux_amd64.tar.gz.sbom.json
 ```
@@ -164,15 +164,15 @@ Signature:
 
 ```bash
 cosign verify \
-  --certificate-identity 'https://github.com/goreleaser/example-secure/.github/workflows/release.yml@refs/tags/$VERSION' \
-  --certificate-oidc-issuer 'https://token.actions.githubusercontent.com' \
-  ghcr.io/goreleaser/example-secure:$VERSION
+  --certificate-identity "https://github.com/goreleaser/example-secure/.github/workflows/release.yml@refs/tags/$VERSION" \
+  --certificate-oidc-issuer "https://token.actions.githubusercontent.com" \
+  "ghcr.io/goreleaser/example-secure:$VERSION"
 ```
 
 Vulnerabilities:
 
 ```bash
-grype docker:ghcr.io/goreleaser/example-secure:$VERSION
+grype "docker:ghcr.io/goreleaser/example-secure:$VERSION"
 ```
 
 Attestations:
@@ -180,7 +180,7 @@ Attestations:
 ```bash
 gh attestation verify \
   --owner goreleaser \
-  oci://ghcr.io/goreleaser/example-secure:$VERSION
+  "oci://ghcr.io/goreleaser/example-secure:$VERSION"
 ```
 
 If all these checks are OK, you have a pretty good indication that everything
