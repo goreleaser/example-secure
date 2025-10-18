@@ -113,15 +113,16 @@ The first thing we need to do, is get the current latest version:
 export VERSION="$(gh release list -L 1 -R goreleaser/example-secure --json=tagName -q '.[] | .tagName')"
 ```
 
-Then, we download the `checksums.txt` file, and verify its signature:
+Then, we download the `checksums.txt` and the signature bundle
+(`checksums.txt.sigstore.json`) files, and then verify them:
 
 ```bash
 wget https://github.com/goreleaser/example-secure/releases/download/$VERSION/checksums.txt
+wget https://github.com/goreleaser/example-secure/releases/download/$VERSION/checksums.txt.sigstore.json
 cosign verify-blob \
     --certificate-identity "https://github.com/goreleaser/example-secure/.github/workflows/release.yml@refs/tags/$VERSION" \
     --certificate-oidc-issuer 'https://token.actions.githubusercontent.com' \
-    --cert "https://github.com/goreleaser/example-secure/releases/download/$VERSION/checksums.txt.pem" \
-    --signature "https://github.com/goreleaser/example-secure/releases/download/$VERSION/checksums.txt.sig" \
+    --bundle "checksums.txt.sigstore.json" \
     ./checksums.txt
 ```
 
