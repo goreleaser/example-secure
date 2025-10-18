@@ -41,7 +41,7 @@ source:
 # config the archives filenames, format, and other options.
 # https://goreleaser.com/customization/archive
 archives:
-  - format: tar.gz
+  - formats: [tar.gz]
     wrap_in_directory: true
     name_template: "{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}"
     builds_info:
@@ -64,11 +64,10 @@ checksum:
 # https://goreleaser.com/customization/sign
 signs:
   - cmd: cosign
-    certificate: "${artifact}.pem"
+    signature: "${artifact}.sigstore.json"
     args:
       - sign-blob
-      - "--output-certificate=${certificate}"
-      - "--output-signature=${signature}"
+      - "--bundle=${signature}"
       - "${artifact}"
       - "--yes"
     artifacts: checksum
